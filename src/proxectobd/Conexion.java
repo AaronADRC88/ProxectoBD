@@ -1,9 +1,12 @@
 package proxectobd;
 
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class Conexion {
+
     static Connection con = null;
     static Statement estado;
 
@@ -16,29 +19,27 @@ public class Conexion {
             con = DriverManager.getConnection("jdbc:mysql://localhost/FirstBD", "root", "");
             System.out.println("dentro");
         } catch (ClassNotFoundException | SQLException ex) {
-            System.out.println("Error"+ex);
+            System.out.println("Error" + ex);
         }
 
     }
 
-    public void print() {
+    public static void insertar() {
         try {
+            Conexion.con();
             estado = con.createStatement();
-            JOptionPane.showMessageDialog(null, "Introduce valores");
             int cod = Integer.parseInt(JOptionPane.showInputDialog("Introduce un int identificador"));
             String nome = JOptionPane.showInputDialog("Introduce un nome");
             String apelido = JOptionPane.showInputDialog("Introduce un apelido");
             estado.executeUpdate("insert into alumnos values(" + cod + ",'" + nome + "','" + apelido + "')");
-            ResultSet resultado = estado.executeQuery("select * from alumnos");
-            System.out.println("cod \t nome \t apelido \t");
-
-            while (resultado.next()) {
-                System.out.println(resultado.getString("cod") + "\t" + resultado.getString("nome") + "\t" + resultado.getString("apelido"));
-            }
-            resultado.close();
+            estado.close();
             con.close();
+        } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException ex) {
+            System.out.println("error clave primaria en uso" + ex);
+            insertar();
+
         } catch (SQLException ex) {
-            System.out.println("Error" + ex.getMessage());
+            Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

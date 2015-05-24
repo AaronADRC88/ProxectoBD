@@ -1,11 +1,10 @@
 package proxectobd;
 
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -13,50 +12,39 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import static proxectobd.Conexion.con;
 import static proxectobd.Conexion.estado;
 
-public class Table extends JFrame implements ActionListener {
+public final class Table extends JFrame implements ActionListener {
+
+    private static final long serialVersionUID = 1L;
 
     JButton select, delete, insert;
     DefaultTableModel dtm;
 
     public Table() {
         super("Base de datos");
+        //se crea la Tabla
         //array bidimencional de objetos con los datos de la tabla
-
         Object[][] data = null;
         //array de String's con los tÌtulos de las columnas
         String[] columnNames = {"cod", "nome", "apelido"};
-        //se crea la Tabla
         dtm = new DefaultTableModel(data, columnNames);
-        final JTable table = new JTable(dtm);
+        JTable table = new JTable(dtm);
         table.setPreferredScrollableViewportSize(new Dimension(500, 70));
         //Creamos un JscrollPane y le agregamos la JTable
         JScrollPane scrollPane = new JScrollPane(table);
-        //Agregamos el JScrollPane al contenedor y botones
+        //Agregamos el JScrollPane y botones al contenedor 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
         getContentPane().add(botones(), BorderLayout.SOUTH);
         pack();
         setVisible(true);
         //manejamos la salida
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
-                try {
-                    if (!Conexion.estado.isClosed()) {
-                        Conexion.estado.close();
-                    } else {
-                        System.exit(0);
-                    }
+                System.exit(0);
 
-                    if (!Conexion.con.isClosed()) {
-                        Conexion.con.close();
-                    } else {
-                        System.exit(0);
-                    }
-                    System.exit(0);
-                } catch (SQLException ex) {
-                    System.out.println("error" + ex);
-                }
             }
         });
     }
@@ -78,37 +66,42 @@ public class Table extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(select)) {
-            /**if (dtm.getRowCount() > 0) {
-                for (int i = 0; i < dtm.getRowCount(); i++) {
+            int i = 0;
+            if (dtm.getRowCount() > 0) {
+                do {
                     dtm.removeRow(i);
-                }
-            }**/
+                } while (dtm.getRowCount() > 0);
+            }
             try {
+
                 Conexion.con();
-                Conexion.estado = Conexion.con.createStatement();
-                ResultSet resultado = Conexion.estado.executeQuery("select * from alumnos");
+                estado = con.createStatement();
+                ResultSet resultado = estado.executeQuery("select * from alumnos");
                 while (resultado.next()) {
                     Object[] novaFila = {resultado.getString("cod"), resultado.getString("nome"), resultado.getString("apelido")};
                     dtm.addRow(novaFila);
+
                 }
+                estado.close();
+                con.close();
             } catch (SQLException ex) {
                 System.out.println("error" + ex);
             }
         }
         if (e.getSource().equals(delete)) {
-
-        }
-        if (e.getSource().equals(insert)) {
             try {
                 Conexion.con();
-                Conexion.estado = Conexion.con.createStatement();
-                int cod = Integer.parseInt(JOptionPane.showInputDialog("Introduce un int identificador"));
-                String nome = JOptionPane.showInputDialog("Introduce un nome");
-                String apelido = JOptionPane.showInputDialog("Introduce un apelido");
-                estado.executeUpdate("insert into alumnos values(" + cod + ",'" + nome + "','" + apelido + "')");
+                estado = con.createStatement();
+                int cod = Integer.parseInt(JOptionPane.showInputDialog("Introduce un int identificador de la fila que quiere borrar"));
+                estado.executeUpdate("delete from alumnos where cod=" + cod);
+                estado.close();
+                con.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("error" + ex);
             }
+        }
+        if (e.getSource().equals(insert)) {
+            Conexion.insertar();
 
         }
     }
