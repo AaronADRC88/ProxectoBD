@@ -1,6 +1,5 @@
 package proxectobd;
 
-
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
@@ -66,10 +65,9 @@ public final class Table extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(select)) {
-            int i = 0;
             if (dtm.getRowCount() > 0) {
                 do {
-                    dtm.removeRow(i);
+                    dtm.removeRow(0);
                 } while (dtm.getRowCount() > 0);
             }
             try {
@@ -89,16 +87,7 @@ public final class Table extends JFrame implements ActionListener {
             }
         }
         if (e.getSource().equals(delete)) {
-            try {
-                Conexion.con();
-                estado = con.createStatement();
-                int cod = Integer.parseInt(JOptionPane.showInputDialog("Introduce un int identificador de la fila que quiere borrar"));
-                estado.executeUpdate("delete from alumnos where cod=" + cod);
-                estado.close();
-                con.close();
-            } catch (SQLException ex) {
-                System.out.println("error" + ex);
-            }
+            Conexion.borrar();
         }
         if (e.getSource().equals(insert)) {
             Conexion.insertar();

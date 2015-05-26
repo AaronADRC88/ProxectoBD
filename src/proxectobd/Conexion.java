@@ -35,11 +35,27 @@ public class Conexion {
             estado.close();
             con.close();
         } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException ex) {
-            System.out.println("error clave primaria en uso" + ex);
+            JOptionPane.showMessageDialog(null, "Clave primaria en uso", "ERROR", JOptionPane.WARNING_MESSAGE);
             insertar();
 
         } catch (SQLException ex) {
             Logger.getLogger(Table.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void borrar() {
+        try {
+            Conexion.con();
+            estado = con.createStatement();
+            int cod = Integer.parseInt(JOptionPane.showInputDialog("Introduce el int identificador de la fila que quiere borrar"));
+            estado.executeUpdate("delete from alumnos where cod=" + cod);
+            estado.close();
+            con.close();
+        } catch (java.lang.NumberFormatException ex) {
+            JOptionPane.showMessageDialog(null, "Introduce un numero entero", "ERROR", JOptionPane.WARNING_MESSAGE);
+            borrar();
+        } catch (SQLException ex) {
+            System.out.println("Error" + ex);
         }
     }
 
